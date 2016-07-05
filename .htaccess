@@ -13,6 +13,10 @@ ExpiresDefault "access plus 2 days"
 </IfModule>
 ## EXPIRES CACHING ##
 
+<FilesMatch "\.(ico|pdf|flv|jpg|jpeg|png|gif|js|css|swf)$">
+Header set Cache-Control "max-age=86400, public"
+</FilesMatch>
+
 # compress text, html, javascript, css, xml:
 AddOutputFilterByType DEFLATE text/plain
 AddOutputFilterByType DEFLATE text/html
