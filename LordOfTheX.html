@@ -37,7 +37,6 @@ Now tell us who you are...&quot;
 (set: $playerHealth to 80)
 
 (set: $weapon to &quot;Fists of a thousand Gnomes&quot;)
-
 (go-to: &quot;Beginning&quot;)</tw-passagedata><tw-passagedata pid="4" name="Beginning" tags="" position="579,537.5" size="100,100">&quot;Welcome, $raceColor[$race] to &#39;&#39;Tribe Wars&#39;&#39; where we fight to see who&#39;s worthy to wear //The Crown Of inconsistencies// and lead all of our tribes!
 
 There are 3 parts to this &#39;&#39;tribe war&#39;&#39; and I&#39;ll tell you about them after you have won each part.&quot;
@@ -123,7 +122,7 @@ But as a // $KungFuEnemyName // once said &quot;To truly win a battle you must h
 	
 	(set: _DamageDone to (random: $playerAttackMin,$playerAttackMax))
 	(set: $KungFuEnemyHealth to it - _DamageDone)
-	You attack $KungFuEnemyName with your $weaponName for _DamageDone damage!
+	You attack $KungFuEnemyName with your $weapon for _DamageDone damage!
 	
 	(if: $KungFuEnemyHealth &lt;= 0)[
 		$KungFuEnemyName falls to the ground, defeated.
@@ -173,7 +172,7 @@ You turn to the crowd that had formed around you during the battle and raise you
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam eleifend pharetra ultricies. Aliquam bibendum, erat a euismod sagittis, ligula velit vehicula mi, at euismod diam ex in purus. Aliquam eu scelerisque lorem. Nullam vitae sapien nec justo mattis tincidunt in non diam. In fringilla diam ante, sed dictum velit hendrerit at. Curabitur ipsum dui, mollis ut efficitur tristique, rutrum nec enim. Nulla aliquet nec ligula nec consequat. Vivamus hendrerit vel nunc et pretium. Nulla aliquet erat nec enim aliquet ullamcorper. Quisque a aliquam dui. Praesent id orci et arcu placerat accumsan non sit amet ante. Ut sit amet dignissim leo. Pellentesque mi turpis, volutpat eget tortor quis, porta congue elit. Nam massa risus, blandit sed ultrices sit amet, placerat eu dui.
 
-</tw-passagedata><tw-passagedata pid="25" name=" BattleWin" tags="" position="515,1443.5" size="100,100">&quot;You did it! You defeated your enemy! You are worthy of //The Crown Of inconsistencies//!&quot;
+</tw-passagedata><tw-passagedata pid="25" name=" BattleWin" tags="" position="499,1417.5" size="100,100">&quot;You did it! You defeated your enemy! You are worthy of //The Crown Of inconsistencies//!&quot;
 
 All around you the crowd cheers as you recieve the Crown and is chosen as the leader for all tribes.
 
