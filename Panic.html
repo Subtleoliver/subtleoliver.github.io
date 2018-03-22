@@ -46,8 +46,9 @@ tw-story {
 
 [[*Panic*-&gt;PANIC]]
 }</tw-passagedata><tw-passagedata pid="2" name="PANIC" tags="" position="583,434" size="100,100">{
-&lt;center&gt;&lt;h2&gt;I told you not to calm down...&lt;/h2&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
+&lt;center&gt;&lt;h2&gt;I told you not to panic...&lt;/h2&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
 (set: $panic to it + 1)
+(if: $panic &gt; 5)[ Can you just stay calm for a bit? &lt;br&gt;]
 (if: $panic &gt; 10)[ Come on... $panic times? &lt;br&gt;]
 (if: $panic &gt; 12)[ Okay, I think you need to relax now... &lt;br&gt;]
 (if: $panic &gt; 14)[ This isn&#39;t healthy! &lt;br&gt;]
