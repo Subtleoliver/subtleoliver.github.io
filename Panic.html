@@ -48,6 +48,24 @@ tw-story {
 }</tw-passagedata><tw-passagedata pid="2" name="PANIC" tags="" position="583,434" size="100,100">{
 &lt;center&gt;&lt;h1&gt;I TOLD YOU NOT TO PANIC&lt;/h1&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
 (set: $panic to it + 1)
+(if: $panic &gt; 10)[ Come on... $panic times? &lt;br&gt;]
+(if: $panic &gt; 12)[ Okay, I think you need to relax now... &lt;br&gt;]
+(if: $panic &gt; 14)[ This isn&#39;t healthy! &lt;br&gt;]
+(if: $panic &gt; 16)[ Go to bed! &lt;br&gt;]
+(if: $panic &gt; 18)[ No? Okay then I&#39;ll play some Hamilton whilst you continue. &lt;br&gt;]
+(if: $panic &gt; 19)[ How does a bastard, orphan, son of a whore 
+And a Scotsman, dropped in the middle of a forgotten spot in the Caribbean by providence impoverished,
+In squalor, grow up to be a hero and a scholar?
+ &lt;br&gt;]
+(if: $panic &gt; 20)[ Not that either? This is hard you know... &lt;br&gt;]
+(if: $panic &gt; 21)[ Knowledge is power but using it wisely is the key! &lt;br&gt;]
+(if: $panic &gt; 22)[ See ya when you reach 30 times! &lt;br&gt;]
+(if: $panic &gt; 30)[ I am back! So how you doin-- Oh still panicking? &lt;br&gt;]
+(if: $panic &gt; 31)[ This is great isn&#39;t it? I&#39;ll visit again soon! &lt;br&gt;]
+ 
+
+
+&lt;br&gt;
 [[*Calm down*-&gt;Don&#39;t Panic]]
 }</tw-passagedata><tw-passagedata pid="3" name="startup" tags="system" position="447,287" size="100,100">(set: $panic to 0)
 
