@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  
+  <meta charset="utf-8">
+  <title>DodgerV2 Part 5: Implementations.</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="icon" href="/assets/images/BunnyDark.jpg">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro" rel="stylesheet">
+
+  <!-- Twitter stuff -->
+  <meta property="og:site_name" content="TheGrimsey">
+  <meta property="og:title" content="DodgerV2 Part 5: Implementations.">
+  <meta property="og:type" content="article">
+  <meta property="article:publisher" content="https://TheGrimsey.net">
+  <meta property="article:author" content="Grim">
+  <meta property="article:section" content="">
+  <meta property="article:published_time" content="2020-03-02 00:00:00 +0100">
+  <meta property="article:modified_time" content="2020-03-02 00:00:00 +0100">
+  <meta property="og:description" content="<p>So, I am a bit behind in my schedule but I spent yesterday working on the ECS Movement System and making these temporary sprites for everything.</p>
+">
+  <meta property="og:url" content="https://www.thegrimsey.net">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:website" content="https://wwww.thegrimsey.net">
+
+</head>
+
+<body>
+  <h1 class="Title">The Grim Chronicle</h1>
+
+  <nav>  
+    
+        <a href="/">
+            <f >Home</f>
+        </a>
+    
+        <a href="/games.html">
+            <f >Games</f>
+        </a>
+    
+        <a href="/about.html">
+            <f >About</f>
+        </a>
+    
+</nav>
+  <div class="Main">
+    <h1>DodgerV2 Part 5: Implementations.</h1>
+<p>So, I am a bit behind in my schedule but I spent yesterday working on the ECS Movement System and making these temporary sprites for everything.</p>
+
+<div class="ImageFlexBox">
+    <img src="/assets/images/DodgerV2/Part5/OldShip.png" alt="Player Ship" class="SmallPostImage" />
+    <img src="/assets/images/DodgerV2/Part5/OldBullet.png" alt="Bullet" class="SmallPostImage" />
+    <img src="/assets/images/DodgerV2/Part5/OldAsteroid.png" alt="Asteroid" class="SmallPostImage" />
+</div>
+
+<p>These sprites I will add colors to later on but for now they are just the possible outlines. I may want to modify the asteroid to make it a bit more asteroid-y in the future.</p>
+
+<h4 id="ecs-movement-system">ECS Movement System.</h4>
+<p>For the ECS Movement System, the implementation is quite simple. Since my Part 2 post Unity’s ECS has had a few updates which greatly increased my pain yesterday. <em>If you update Entities you may need to change your .NET compiler version to .NET Standard 2.0 in Player -&gt; Other Settings</em>. That was the thing giving me all the headaches. Beyond that they did add something great which made me able to move away from having a MonoBehaviour to a IComponentData struct without any work and that is sort of a free performance upgrade because using IComponentData allows us to take better advantage of the CPU Data cache. The final code for the MovementSystem became this instead of the examples shown in post 2:</p>
+
+<p><img src="/assets/images/DodgerV2/Part5/MovementComponent.JPG" alt="Movement Component Code" class="PostImage" /></p>
+
+<p><img src="/assets/images/DodgerV2/Part5/MovementSystem.JPG" alt="System Code" class="PostImage" /></p>
+
+<p>There are multiple nice things about this:</p>
+<ol>
+  <li>The MovementSystem works directly on the Translation instead of Transform which makes it so we don’t need to grab a lot of unnecessary data.</li>
+  <li>The MovementComponent automatically generates a MonoBehaviour for setting the values into so I can add the MonoBehaviour to an asteroid prefab and then it will be converted to IComponentData when it is spawned. It gives us the best of both worlds.</li>
+</ol>
+
+<p>And I also took the liberty of adding RelativeMovementDirection to the MovementComponent so we can decide which rotation relative to itself it will move. This is really just to make it so we don’t have to rotate each entity and it can just move in any direction.</p>
+
+<h4 id="player-movement">Player Movement</h4>
+<p>After working on the ECS Systems I moved on to player movement. Using the new Input System I was able to quickly set up Movement handled by the PlayerMovement component. Movement is not dependant on the direction you are facing which means pressing the W key will always move you up on the screen even if you are facing down, I did this because it felt a bit more natural and makes it so you can do cooler moves with predictable movement.</p>
+
+<p><a href="https://github.com/TheGrimsey/DodgerV2/blob/master/DodgerV2/Assets/Scripts/Player/PlayerMovement.cs">Player Movement class</a></p>
+
+<h4 id="asteroids">Asteroids</h4>
+<p>With both player movement and the enemy movement working I made an AsteroidSpawner with a few settings that I can tweak for spawning asteroids.
+<img src="/assets/images/DodgerV2/Part5/AsteroidSpawner.JPG" alt="Asteroid Spawner" class="PostImage" /></p>
+
+<p>Most of these should be quite self explanatory except for Rotation Normalization Weight at the bottom. What it does is nudge rotations closer to 0 so whilst we have some asteroids that go 35 degrees sideways most of them will go more straight.</p>
+
+<h4 id="bullets">Bullets.</h4>
+<p>Next step was making the player able to shoot and destroy Asteroids. For this we have the PlayerWeapon MonoBehaviour. It takes in a bullet prefab and when you press SPACE it spawns a bullet in front of you in the direction you are facing.</p>
+
+<p><img src="/assets/images/DodgerV2/Part5/Bullet.JPG" alt="Asteroid Spawner" class="PostImage" /></p>
+
+<p>These bullets also use the Movement System to move but have a component(<a href="https://github.com/TheGrimsey/DodgerV2/blob/master/DodgerV2/Assets/Scripts/Bullet/BulletTrigger.cs">BulletTrigger</a>) that handles destroying asteroids when they collide with it.</p>
+
+<h3 id="wednesday-19th-of-february">Wednesday 19th of February</h3>
+<p>So almost a week later. I have done a lot. Besides what I have written above I have made a 
+System for handling when an entity leaves the playspace (it is deleted), updated the sprites and cleaned up some of the code and did a ton more.</p>
+
+<p>First, I added a score system so every time you shot an asteroid you got a few points. The amount of points is determined by the ScoreRewards ScriptableObject and is then stored in the ScoreKeeper ScriptableObject. I really got into using ScriptableObjects for this and it works quite well.</p>
+
+<p>This score system wasn’t quite enough though so I expanded to a GameKeeper which has the current state of the game, it has references to the ScoreRewards and ScoreKeeper and it also handles ending the round when the player dies.</p>
+
+<p>Secondly, I worked on UI and the graphical presentation of the game. Right now as I am writing this the game looks like this</p>
+
+<p><img src="/assets/images/DodgerV2/Part5/DodgerV2Graphics.JPG" alt="New Graphics" class="PostImage" /></p>
+
+<p>I changed up the sprites, added a bit of color and added a way to display text that fades away in the world. This is used to display points earned when you shoot an asteroid. I genuinely like the graphics right now, it has a sort of retro feeling. I am not sure I will keep the colors the same though. One thing missing from the UI right now is the player’s health and I am working on figuring out the best way to handle it.</p>
+
+<p>Thirdly, I added a very simple main menu. That is missing a lot of things. This is how it currently looks:</p>
+
+<p><img src="/assets/images/DodgerV2/Part5/MainMenu.JPG" alt="Main Menu" class="PostImage" /></p>
+
+<p>I am planning on adding some graphics for the background, links to my social media and then we’ll see what I do. It is a bit too empty right now but it works. When the player dies you get thrown back to the main menu.</p>
+
+<p>I am gonna need to cut this post off now because I am already quite far behind in my posting and need to get something out. The next post will likely talk about polish and general fixes and I might finally get around to mobile controls ;)</p>
+
+<p>All this progress is up on my github repo already so check it out <a href="https://github.com/TheGrimsey/Dodgerv2">here</a></p>
+
+<p style="text-align: center;">Written 02 Mar 2020 by Grim</p>
+  </div>
+
+  <div class="Footer">
+    <p>
+            <a href="https://www.twitter.com/TheGrimsey" title="Twitter Account" target="_blank"><img src="/assets/images/TwitterIcon.png" alt="Twitter Account" class="SocialMediaIcon"></a>
+            <a href="https://www.github.com/TheGrimsey" title="Github Account" target="_blank"><img src="/assets/images/GithubIcon.png" alt="Github Account" class="SocialMediaIcon"></a>
+    </p>
+    Created by TheGrimsey using Jekyll.<br>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  
+  <meta charset="utf-8">
+  <title>Making SimpleFPS.</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="icon" href="/assets/images/BunnyDark.jpg">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro" rel="stylesheet">
+
+  <!-- Twitter stuff -->
+  <meta property="og:site_name" content="TheGrimsey">
+  <meta property="og:title" content="Making SimpleFPS.">
+  <meta property="og:type" content="article">
+  <meta property="article:publisher" content="https://TheGrimsey.net">
+  <meta property="article:author" content="Grim">
+  <meta property="article:section" content="">
+  <meta property="article:published_time" content="2020-02-19 00:00:00 +0100">
+  <meta property="article:modified_time" content="2020-02-19 00:00:00 +0100">
+  <meta property="og:description" content="<p>This is the story of the making of my simple projectile based FPS in Unreal Engine 4. Someone reading this might know that a few <del>weeks</del> months ago I posted this tweet a while back.</p>
+">
+  <meta property="og:url" content="https://www.thegrimsey.net">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:website" content="https://wwww.thegrimsey.net">
+
+</head>
+
+<body>
+  <h1 class="Title">The Grim Chronicle</h1>
+
+  <nav>  
+    
+        <a href="/">
+            <f >Home</f>
+        </a>
+    
+        <a href="/games.html">
+            <f >Games</f>
+        </a>
+    
+        <a href="/about.html">
+            <f >About</f>
+        </a>
+    
+</nav>
+  <div class="Main">
+    <h1>Making SimpleFPS.</h1>
+<p>This is the story of the making of my simple projectile based FPS in Unreal Engine 4. Someone reading this might know that a few <del>weeks</del> months ago I posted this tweet a while back.</p>
+
+<p><img src="/assets/images/SimpleFPS/Tweet.JPG" alt="Tweet" class="PostImage" /></p>
+
+<p>This is not that post because a lot has happened. As I am writing this it is the <del>18th of December</del> 19th of February, my website is down as I am moving it and my domain to AWS (Cloud stuff!). By the time you are reading this it is obviously up again. Anyway that isn’t the important part.</p>
+
+<p>Let’s talk about <strong>SimpleFPS</strong> my FPS game featuring bouncing explosive high-speed projectiles. This is probably my biggest <em>finished</em> project. This post will be in almost chronological order. <em>It all began <del>2 months and 3 weeks</del> a long long time ago in a galaxy far far away…</em></p>
+
+<h3 id="27th-of-september-2019-beginnings">27th of September, 2019: Beginnings.</h3>
+<p>For programming class we were supposed to work on a personal project. I had 3 ideas:</p>
+<ol>
+  <li>A VR archery game (in Unity3D)</li>
+  <li>A Discord bot that generates random phrases</li>
+  <li>A Simple Physics based FPS game (in Unreal Engine 4)
+My school does have <em>a</em> VR headset and my family also has one at home but I decided that it would be much extra work to manage. A discord bot I still kinda want to do but an FPS in Unreal Engine game seemed a lot more interesting. Why physics based? I don’t need to worry about network compensation stuff as much, generally it should be pretty much equal between server and client (that was my assumption at least).</li>
+</ol>
+
+<p>I had my project idea so I started writing up a simple structure for classes and components in google docs. Looking at it now… It doesn’t account for half the classes I have. The original plan was just to have shooting and death mechanics then be done but things kinda expanded.</p>
+
+<h3 id="2nd-of-october-2019-enter-unreal--real-code">2nd of October, 2019: Enter Unreal &amp; real code.</h3>
+<p>Real work begun in October. This was the first day of writing code. I created all classes I had earlier written up those being:</p>
+<ul>
+  <li>HealthComponent</li>
+  <li>GunComponent</li>
+  <li>SimpleFPSCharacter
+And finally</li>
+  <li>Projectile</li>
+</ul>
+
+<p>The Health component held current &amp; max health. The Gun component held all the weapon data (Which weapon you had equipped and it’s stats + your current ammunition) and logic. I want to point out here that there is only one weapon in the game but the underlying structure would technically allow there to be more I just didn’t add it in because I had no idea what other weapons to make that fit with the theme. Maybe a gun that shot multiple smaller bullets that did less damage like a shotgun? I don’t know. It didn’t happen though.</p>
+
+<p>The SimpleFPSCharacter was the player character which held all the above components and their data.</p>
+
+<p>The Projectile was the projectile you shot (makes sense, huh?) and had a bit of data on damage, explosion delay and radius. The way projectiles work is that the first time they hit something it “lights the fuse” and after $ExplosionDelay seconds it does a overlap (in async) for all actors in $ExplosionRadius after which it applies the damage to all of them. This allows you to bounce the projectiles off walls and time the explosion to be right by the enemy, I thought it would give the game a bit more of a skill aspect.</p>
+
+<h3 id="9th-of-october-2019-respawning">9th of October, 2019: Respawning.</h3>
+<p>Around here I got respawning working by adding an event to the HealthComponent for health changing, this made it so I could listen in on it from other classes and once the character reached 0 health we could unposses the character and play a death animation. I remember one of the problems here was updating the UI to handle the player dying because all the health data is on the pawn so we need to either
+A) Move health data to the player controller or state
+or
+B) Bodge it together by updating our listening when we get a new pawn.
+I did the second option. Then <em>I broke it</em> and now I am pretty sure we just try to get it from the pawn and if it fails it just sets it to 0 in the UI.</p>
+
+<p>In hindsight I probably could have just moved the health to the player state because then I wouldn’t have had to create a new health component every time the player dies. Might have given me a miniscule amount of performance when spawning new characters but really not enough to be necessary.</p>
+
+<h3 id="16th-of-october-2019-quite-playable">16th of October, 2019: Quite playable.</h3>
+<p>At this point things kinda worked in the editor. You could shoot each other and such just ONE bug… There is a sort of hidden cooldown on guns that determines how often you can shoot (it exists to stop spamming out 10s of projectiles in one tick) it is set both by the client and the server when they try to shoot. The problem I was having was that the listen server could shoot fine but clients couldn’t shoot at the same frequency after a bit of tinkering I realized the problem: The <em>TimeOfLastShot</em> variable was replicated so any delay between the client and server shooting would be added to the client’s cooldown, the reason this isn’t a problem for the listen server is because it is the server and there is no delay there. This was a really simple fix all I had to do was make it not replicate but for a while the server had a huge advantage (beyond being the authority on every position and such).</p>
+
+<p>I also made a basic main menu here. There were a few problems with this one that I addressed later though, mainly clicking the play button would just directly search for a session on the LAN network and then if it didn’t find one create one. That meant that you couldn’t join your friends if they were on a different network.
+<img src="/assets/images/SimpleFPS/MainMenu.jpg" alt="Main Menu" class="PostImage" />
+Note the Graphics Quality selector at the bottom-right, it just uses the engine scalability settings and was really quick to implement.</p>
+
+<h3 id="18th-of-october-2019-kill-deaths-and-polish">18th of October, 2019: Kill, Deaths and polish.</h3>
+<p>At this point I began turning towards polishing and adding the last few things. After implementing the Kill &amp; Death counter I felt kinda done. One thing I did this time too though was add an ammo-regen mechanic so you would actually get your ammo back over time, I could have made a more conventional thing were ammo-boxes spawned on the map but I just wanted to get this done at this point.</p>
+
+<p><img src="/assets/images/SimpleFPS/KillDeathCounter.jpg" alt="Kill &amp; Death Counter" class="PostImage" /></p>
+
+<h3 id="23rd-of-october-2019-dataassets-and-a-first-playtest">23rd of October, 2019: DataAssets and a first playtest</h3>
+<p>Now it was time to play test a bit against my teacher… After I did a kinda monumental change and finally made Guns DataAssets instead of just structs. This is something I probably should have done earlier as before I had to make changes inside the GunComponent and that was terrible but now the gun was finally a separate asset independent of the character.</p>
+
+<p><strong>DataAssets</strong> are really great, I use many different DataAsset types for another one of my projects and their usefulness can’t be overstated. They will only be loaded once into memory and you can keep your data separated from the logic and with a DataAsset you don’t need to replicated all the variables of a struct because clients already have them on their machine. They are great, use them wherever you have data that doesn’t change at runtime. I don’t use them to their full extent in SimpleFPS a perfect place for a DataAsset would have been for the projectile, projectiles only need a few things in SimpleFPS:</p>
+<ol>
+  <li>A model</li>
+  <li>Damage they do</li>
+  <li>Explosion related data (Radius, Delay &amp; Force)</li>
+  <li>Speed
+If I had used a data asset to define those properties I could have been pooling all the projectiles and almost eliminated any need for spawning new ones during the match. At higher player counts this might have been useful.</li>
+</ol>
+
+<h3 id="first-real-playtest-oct-23rd">First real playtest (Oct 23rd)</h3>
+<p>After a few minutes of struggling with the school wi-fi not allowing connections between local computers and switching over to my phone’s mobile hotspot I finally got to play against my Programming teacher and I was absolutely obliterated. He knows how to play FPS games and I realized I needed to tune <em>a few</em> knobs related to the projectile speed and jump height because at the moment you could almost jump over them and they were a bit too slow to be a real threat (if you knew what you were doing that is).</p>
+
+<p>Another bug was found in this test: <em>If you shoot a corpse you will get a kill.</em>
+That is definitely not right, the reason for why this happened was that when we dealt damage we counted it as a kill if they were dead afterwards we didn’t check if they were already dead. My solution to this was to only apply damage if the character was still alive and otherwise just <strong>return false</strong>.</p>
+
+<p>Over all this test was a huge success, I was pretty much done. I didn’t really need to work more on it and I didn’t for about 1.5 months before things started getting real…</p>
+
+<h3 id="11th-of-december-2019-calm-before-the-storm">11th of December, 2019: Calm before the Storm</h3>
+<p>After being away from it for a month and a half I returned to SimpleFPS to remake the main-menu to allow you to host or join by IP. Nothing more really happened.</p>
+
+<h2 id="final-days">Final Days.</h2>
+
+<h3 id="13th-of-december-2019-fuck">13th of December, 2019: FUCK</h3>
+<p>My teacher wanted to play against me again, I didn’t have my mouse with me so I declined and then he came with a suggestion: What if the whole class played my game next lesson? I said “<em>Yes</em>” and then it was off to the races.</p>
+
+<p>During the two hours lesson I began working on teams prior to this it was just a FFA. I added a datatable for team colors and names, started moving around player data to playerstate and then once I went home I began doing even more work including making a new bigger map. Everything that was related to the PlayerController slowly moved away to playerstate…</p>
+
+<p>This was the start of my weekend long programming marathon.</p>
+
+<h3 id="what-i-had-to-do">What I had to do:</h3>
+<p>I had half a week to move the game from “playable” to <strong>Playable</strong>. I did majority of the work in the following 2 days.
+This included:</p>
+<ul>
+  <li>Making a lobby</li>
+  <li>Adding real win conditions based on kills by a team</li>
+  <li>Make teams work better</li>
+  <li>Add hosting options (Team count, kill goal, etc)</li>
+</ul>
+
+<p>Needless to say this was a lot of work.</p>
+
+<h3 id="the-weekend-of-december-14th-to-15th-2019">The Weekend of December 14th to 15th, 2019:</h3>
+<p>(The following is even less chronological than other parts and doesn’t include all of the problems and refactors I had to work through)</p>
+
+<p><strong>First step</strong> in making this work was moving things from blueprint to C++. I would need all the performance I could get. The ammo-regen mechanic I mentioned before was earlier completely in blueprint, I moved it to the GunComponent directly instead.</p>
+
+<p><strong>Second step</strong>, counting kills for a team. The gamemode didn’t replicate to players to I had to put the team kills somewhere else that they would get: GameState. So each time someone gets a kill that we count (one that isn’t on a member of their own team) we notify the GameState and then every player gets that info and we can display team kills and deaths in the UI. BUT wait GameState doesn’t persist between maps so we need to save it somewhere else when we move back to the lobby. We need to save things on the GameInstance when we go back to the lobby. Then when we reach the lobby we just copy that data back into the gamestate and BOOM! We can see things.</p>
+
+<p><strong>Third step</strong>, we need an actual lobby and a way to handle it. We need a UI and controls to start the gamemode and we need to be able to kick players of course and we need to display the playerlist and the teams. Trying to tell all that happened in this step would be very messy so here is summarized summary:</p>
+
+<p><em>Display the playerlist?</em> To fill the playerlist we need to react to whenever a new playerstate is added. That is simple enough right? NO!- WAIT YES! We need to add an event to the GameState for when a playerstate is added (through replication or otherwise) luckily that is a virtual method so we just hook up to that and grab everything from there and then hook up to that event again from inside the PlayerInfo widget for removing it.</p>
+
+<p><em>How do we kick a player?</em> Simple enough there is a function for that– Not exposed to blueprints. So we go in and make a function for that in our GameMode which just call <em>GameSession::KickPlayer()</em>. BINGO! Things actually work. Then we just hide that button for non host players.</p>
+
+<p><em>Assign teams?</em> Super simple barely an inconvenience just set it in AGameModeBase::PostLogin() (also a virtual function). Then we just look at all already logged in characters and count the team members and put this new player in the one with the least members. Unoptimized? Definitely but it only happens when a player joins so it shouldn’t matter for gameplay.</p>
+
+<p><em>Starting match?</em> Grab all the options set in the UI and add them in as options for server travel to the real map. Then we just parse all those options in the InitGame() function in the GameMode. (Then we also have to pass some of those to GameState so clients get to know about them)</p>
+
+<p><em>Team names and colors?</em> I store all team-data in a datatable. It is simply an FText and a Color. Pretty much all names are references to Warcraft factions but specifically ones that I didn’t expect many people to know.</p>
+
+<p><img src="/assets/images/SimpleFPS/Lobby.JPG" alt="The Lobby" class="PostImage" /></p>
+
+<p><strong>Fourth step</strong>, performance and polish.
+I tweaked a few values and began trying to squeeze out performance anywhere I could. Here are a few of my tips:</p>
+
+<ol>
+  <li>
+    <p>By default the UE4 MovementComponent will substep physics by 8 times (Max Simulation Iterations). That is a bit too much precision for me. What you can do is find the thinnest wall in your game and then calculate how much you need to substep at your minimum target tickspeed. For me that was 30 ticks per second with the thinnest walls being 25 units. Then you take the movement speed of your character and divide it by the ticks per second then divide that by your thinnest wall which will give you how many substeps you’d need to do at your target tick speed (round up). <strong>Beware</strong> that setting this low is probably not a great idea for games with thin walls or uncertain tick speeds.
+<img src="/assets/images/SimpleFPS/MaxSimulationIterations.JPG" alt="Max Simulation Iterations" class="PostImage" /></p>
+  </li>
+  <li>
+    <p>Don’t waste any time determining to who something needs to replicate. I marked both characters and projectiles as <strong>Always Relevant</strong> under Replication because the map is so small that they would always be relevant anyway and spending any time testing if they would be is a waste. If you have bigger maps and higher player counts this has diminishing returns in the form of bandwidth but for such a small game it doesn’t matter.</p>
+  </li>
+  <li>
+    <p>Async traces &amp; overlaps. You can do LineTraces &amp; overlaps on a background thread in Unreal, you won’t get the results until the next frame but it is useful if you have to do a lot of them. For SimpleFPS all the projectiles use these when they explode. I recommend <a href="https://medium.com/@bryan.corell/using-async-collision-traces-in-unreal-engine-4-2cc312c825f5">this guide</a> by Bryan Corell for how to use them. I also use them in another project of mine and they provide way way better performance than normal traces.</p>
+  </li>
+</ol>
+
+<p>So was any of this really necessary? Not really. The game runs very well on my school laptop even with 10 players on it and by really well I mean I didn’t drop below 60 fps at all during our testing and barely hit 40% cpu usage. It doesn’t mean making use of these in other projects will not make a difference though (step 3 especially is very useful if you do a lot of traces and I might have a post about how I make use of it coming out in the future).</p>
+
+<p><strong>End of the weekend</strong>
+This weekend was a lot of work for me at the time. There was so much work crammed into a two days. I spent pretty much all of it working on SimpleFPS and it payed off, there were a few problems left at the end but nothing that I would really notice until the big playtest.</p>
+
+<p>Oh and lest I forget here is a view of the final map I built.
+<img src="/assets/images/SimpleFPS/FinalMap.jpg" alt="The Final SimpleFPS Map" class="PostImage" /></p>
+
+<h3 id="december-17th-the-day-before-playing">December 17th The Day Before Playing</h3>
+<p>So, the game was pretty much done but I felt like I needed just one last thing: An explanation for how to play the game. I quickly cobbled together in the main menu and the result was this:</p>
+
+<p><img src="/assets/images/SimpleFPS/MainMenuHowTo.JPG" alt="Menu-menu How To Play page" class="PostImage" /></p>
+
+<p>I am quite proud of it.</p>
+
+<h3 id="december-18th-the-day-of-the-play">December 18th The Day of the Play.</h3>
+<p>So, my programming class was in the afternoon which of course means I have a few hours to spend working extra on polish. I made a few small changes to the How To guide and main menu at this time but I also added the team kill-goal to the UI so you could finally see how many kills a team needed to get to win. This was also the time when I marked all actors as always relevant.</p>
+
+<h3 id="the-grand-playtest">The Grand Playtest</h3>
+<p>Playtest time. Only 10 people could connect to my mobile hotspot at a time so we didn’t get a lot of people in at once but it was still very fun.</p>
+
+<p>I am usually very quiet in class, focusing on my own projects but I will admit I might’ve gotten a bit cocky when everyone was playing <em>my</em> game that I had spent the last months working on. I can’t remember which team won now but I believe it was very even the first two rounds when we played with 2 teams. Each round was very long because of the lack of a time-limit and only the kill-goal ending it. For the last round I switched to three teams hoping that it would be a bit more interesting and it was, by this time I had also gotten at least 3 times as much playtime as everyone else and my skills were at the top and I was on the same time as my teacher who as you might remember beat me easily when I did the first playtest versus him. Anyway, I am pretty sure we won that round.</p>
+
+<p>Of course a few more issues appeared during these huge 10 player battles for one you could accidentally launch yourself out of the map… that was because I positioned the invisible roof a bit too high up. Luckily only one person as far as I know flew out of the map and was forced to restart.</p>
+
+<h2 id="final-thoughts">Final thoughts</h2>
+<p>By now it has been almost half a year since I started working on SimpleFPS and 3 months since I began writing this post. SimpleFPS is my biggest <em>finished</em> project so far and it has been a great help when it comes to learning more about Unreal Engine. Much of what I have learnt here I have applied to my other projects and a lot of what I have learnt about is Unreal Engine’s structure and where to put data. GameState, GameMode &amp; GameInstance are really worth looking into if you are doing anything in Unreal Engine because they might do just what you need and if you look at my commits you might notice that I spend a lot of time moving around data between them when trying to figure out how to structure things.</p>
+
+<p>A lot of decisions made when developing SimpleFPS weren’t perfect at the start but I managed to make a lot of improvements during the crunch weekend. It still isn’t perfect though and it will never be because since the last playtest I have barely opened the project except for to do a few bug fixes and I have turned my attention to other things.</p>
+
+<p>During the Christmas break I worked on a <a href="https://www.youtube.com/watch?v=kdpLHkNbvUo">Networked Dialogue System</a> for another UE4-project of mine and I have also now been spending a lot of my time working on <a href="/2019/11/15/DodgerV2Part1.html">DodgerV2</a> my 2D arcade like space shooter in Unity.</p>
+
+<p>I love working on multiplayer things because I love multiplayer, I love going around worlds with other people. It is why I started using Unreal Engine in the first place because it makes multiplayer stuff so easy compared to Unity (though that may change, their tech is catching up). SimpleFPS is the project I am proudest of because I was able to make an actual working FPS game that others can play. This won’t be my last project.</p>
+
+<p><img src="/assets/images/SimpleFPS/GameplayScreenshot.jpg" alt="Gameplay Screenshot" class="PostImage" /></p>
+
+<p><strong>Thank you for reading
+– Grim</strong></p>
+
+<p style="text-align: center;">Written 19 Feb 2020 by Grim</p>
+  </div>
+
+  <div class="Footer">
+    <p>
+            <a href="https://www.twitter.com/TheGrimsey" title="Twitter Account" target="_blank"><img src="/assets/images/TwitterIcon.png" alt="Twitter Account" class="SocialMediaIcon"></a>
+            <a href="https://www.github.com/TheGrimsey" title="Github Account" target="_blank"><img src="/assets/images/GithubIcon.png" alt="Github Account" class="SocialMediaIcon"></a>
+    </p>
+    Created by TheGrimsey using Jekyll.<br>
+</div>
+</body>
+
+</html>
